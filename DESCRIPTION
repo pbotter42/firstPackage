@@ -2,7 +2,7 @@ Package: firstPackage
 Type: Package
 Title: An R implementation of the Lord-Wingersky algorithm(s).
 Version: 0.1.0
-Author: Preston Botter
+Author: Preston Botters
 Maintainer: Preston Botter <pdbotter@gmail.com>
 Description: This package computes the original Lord-Wingersky
     Algorithm for unidimensional IRT models, as well as the 
