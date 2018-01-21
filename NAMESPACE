@@ -1,1 +1,2 @@
 export(normal_distribution)
+export(norm_dist_2d)
