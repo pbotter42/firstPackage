@@ -10,7 +10,7 @@
 #'
 #' @return dist_m
 #'
-#' @examples normal_distribution(theta_min=-5, theta_max=5, n_quad=21)
+#' @examples normal_distribution(n_quad=21,theta_min=-5, theta_max=5)
 #'
 #' @export normal_distribution
 
