@@ -2,28 +2,30 @@
 #'
 #' @description This package computes the original Lord-Wingersky Algorithm for unidimensional IRT models, as well as the Lord-Wingersky Algorithm 2.0.
 #'
-#' @param thetaMin
+#' @param theta_min
 #'
-#' @param thetaMax
+#' @param theta_max
 #'
-#' @param nQuad
+#' @param n_quad
 #'
-#' @return popDist
+#' @return dist_m
 #'
-#' @examples normal_distribution(thetaMin=-5, thetaMax=5, nQuad=21)
+#' @examples normal_distribution(theta_min=-5, theta_max=5, n_quad=21)
 #'
 #' @export normal_distribution
 
 
-normal_distribution <- function(nQuad,
-                                thetaMin,
-                                thetaMax) {
-  qPoints <- seq(from = thetaMin,
-                 to = thetaMax,
-                 by = (thetaMax-thetaMin)/(nQuad-1))
+normal_distribution <- function(n_quad,
+                                theta_min,
+                                theta_max) {
+  q_points <- seq(from = theta_min,
+                 to = theta_max,
+                 by = (theta_max-theta_min)/(n_quad-1))
 
-  popDist <- exp(-(qPoints^2)/2)
-  popDist <- popDist/sum(popDist)
-  return(popDist)
+  dist_m <- exp(-(q_points^2)/2)
+  dist_m <- dist_m/sum(dist_m)
+  return(dist_m)
 
 }
+
+
