@@ -1,0 +1,381 @@
+-!!!! Pay attention to the thetas across the specific and general in lis code     
+# data from Li's article    
+# item params from li's paper  
+```{r}  
+theta1 <- seq(-2,2, by = 1)  
+theta2 <- seq(-2,2, by = 1)  
+phi <- 0
+a1 <- c(1.2,1.2,1,1,.8,.8)  
+a2 <- c(1,1,.8,.8,1.2,1.2)  
+c <- c(-1,-.6,-.2,.2,.6,1)  
+```  
+
+
+#2D Norm Dist  
+```{r}
+normal2d <- matrix(0, length(theta1), length(theta2))  
+for (i in 1:length(theta1)) {  
+  for (j in 1:length(theta2)) {  
+    normal2d[i,j] = exp(-0.5*(theta1[i]^2+theta2[j]^2-2*phi*theta1[i]*theta2[j])/(1-phi*phi))  
+  }  
+}  
+normal2d <- normal2d/sum(normal2d)  
+```   
+#MarginalPopDist (NormDist) here      
+```{r}   
+
+for (j in 1:length(theta1)) {      
+  for (k in 1:length(theta2)){      
+    marginalPopDist[j] <- marginalPopDist[j] + normal2d[j,k]      
+  }      
+}     
+#sum(normal2d[1,])     
+#sum(normal2d[,1])     
+#marginalPopDist[1]     
+```    
+-As the three lines of code above indicate, all that is going in 'marginalPopDist' is each element is either a row or column sum of normal2d (which is )     
+#Computing trace surface b4 the LW 2.0    
+```{r}    
+comp_TS <- function(theta1,    
+                     theta2,    
+                     a1,    
+                     a2,    
+                     c,    
+                     normal2d,    
+                     marginalPopDist) {    
+  # Setting up matrices and vectors      
+  nitems <- length(a1)      
+  TS <- NULL      
+  marginalT <- NULL      
+  logistic <- NULL     
+  for (i in 1:nitems) {                 
+  tempj <- matrix(0, length(theta1), length(theta2))      
+  tempk <- rep(0,length(theta1))       
+  TS <- c(TS,list(tempj))      
+  marginalT <- c(marginalT,list(tempk))      
+  logistic <- c(logistic,list(tempk))      
+  }    
+  # This list will store both the calculated p (corect tline) and q(incorrect tline)    
+  l <- list()    
+for (i in 1:nitems) {      
+  for (j in 1:length(theta1)) {      
+    for (k in 1:length(theta2)){      
+      TS[[i]][j,k] <- 1 / (1 + exp(-(a1[i]*theta1[j] + a2[i]*theta2[k] + (c[i]))))      
+      marginalT[[i]][j] <- marginalT[[i]][j]+TS[[i]][j,k]*normal2d[j,k]      
+    }      
+    marginalT[[i]][j] <- marginalT[[i]][j]/marginalPopDist[j]      
+  }      
+}     
+  for(i in 1:nitems) {    
+    l[[i]] <- list()    
+    l[[i]][[1]] <- numeric()    
+    l[[i]][[2]] <- numeric()    
+    l[[i]][[1]] <- 1-marginalT[[i]]    
+    l[[i]][[2]] <- marginalT[[i]]    
+  }    
+  return(TS)    
+}    
+liCaiDat2 <- comp_TS(theta1,    
+                     theta2,    
+                     a1,    
+                     a2,    
+                     c,    
+                     normal2d,    
+                     marginalPopDist)    
+    
+    
+nr <- 2   
+ic <- c(1,1,2,2,3,3)   
+TS_dataShape <- function(x, ic, nr, nQuad) {   
+  l <- list()   
+  ic_unique <- unique(ic)   
+  item_index <- rep(seq(1,nr, by = 1), length(unique(ic)))   
+  n_iter <- 0   
+  for(i in 1:length(ic_unique)) {   
+    l[[i]] <- list()   
+    TF_index <- ic == ic_unique[i]   
+    for(j in 1:length(TF_index[TF_index == TRUE])) {   
+      n_iter <- n_iter+1   
+      l[[i]][[j]] <- matrix(nrow = nQuad,   
+                            ncol = nQuad)   
+      l[[ic_unique[i]]][[j]] <- x[[n_iter]] #p   
+    }   
+  }   
+     
+  return(l)   
+}   
+    
+liCaiDat2.1 <- TS_dataShape(liCaiDat2, ic, nr, 5)   
+```     
+- 1 - across all item clusters then all items w/ in each item cluster   
+the issue is the different number of items in each item cluster    
+   
+ 
+# LW_2.3, still needs to add the integrtion (which is done)
+# Though the multiplication needs to still be fixed
+```{r}  
+LW_2.3 <- function(x, nr, nQuad) {      
+  l <- list()    
+  # LW 2.0 step 1    
+  for(k in 1:length(x)) { # i.e. for each item cluster    
+     
+  l[[k]] <- list()     
+  l[[k]][[1]] <- list()  
+  l[[k]][[2]] <- list()  
+    
+  l[[k]][[1]][[1]] <- matrix(unlist(x[[k]][1]),  
+                        nrow = 5,  
+                        ncol = 5)  
+  l[[k]][[1]][[2]] <- 1 # correct for p  
+  l[[k]][[2]][[1]] <- 1-matrix(unlist(x[[k]][1]),  
+                        nrow = 5,  
+                        ncol = 5)  
+  l[[k]][[2]][[2]] <- 0 # correct for p  
+    
+  for(i in 2:length(x[[k]])) {   
+    l[[k]] <- c(l[[k]],l[[k]])  
+    ts_num <- length(l[[k]])  
+        for(j in 1:ts_num) {    
+          if(j <= ts_num/2) {   
+        l[[k]][[j]][[1]] <- l[[k]][[j]][[1]]*x[[1]][[1]]  
+        l[[k]][[j]][[2]] <- l[[k]][[j]][[2]]+1   
+          }  
+          else{  
+            l[[k]][[j]][[1]] <- l[[k]][[j]][[1]]*(1-x[[k]][[1]])  
+          }  
+        }  
+     
+  }  
+  } 
+   
+  l2 <- list() 
+  temp <- list() 
+   
+  # looping over l to get temp[[k]][[2]] to contain unique sum scores 
+  for(k in 1:length(l)) { 
+    temp[[k]] <- list() 
+    temp[[k]][[1]] <- numeric() # Vector for all Sum Scores across item clusters  
+    for(i in 1:length(l[[k]])) { 
+      temp[[k]][[1]][i] <- l[[k]][[i]][[2]]  
+    } 
+   temp[[k]][[2]] <- numeric() 
+   temp[[k]][[3]] <- numeric() 
+   temp[[k]][[2]] <- unique(temp[[k]][[1]]) 
+   temp[[k]][[2]] <- sort(unique(temp[[k]][[1]])) 
+   temp[[k]][[3]] <- data.frame(SS = temp[[k]][[2]], 
+                                index = seq(1, length(temp[[k]][[2]]))) 
+  
+  } 
+   
+  for(k in 1:length(temp[[k]])){ 
+    l2[[k]] <- list() 
+    for(i in 1:length(temp[[k]][[2]])) { # indexing on SS +1 bc r cannot index on 0 
+      l2[[k]][[i]] <- list() 
+      l2[[k]][[i]][[1]] <- matrix(rep(0, 
+                                 nQuad*nQuad), 
+                             nrow = nQuad, 
+                             ncol = nQuad) 
+      l2[[k]][[i]][[2]] <- numeric() 
+      l2[[k]][[i]][[2]] <- temp[[k]][[2]][i] 
+       
+  } 
+  } 
+   
+  # the loop below combines lik 
+    for(k in 1:length(l)) { 
+    for(i in 1:length(l[[k]])) { 
+      for(j in 1:nrow(temp[[k]][[3]])) { 
+      if(l[[k]][[i]][[2]] == temp[[k]][[3]][[j,"SS"]]) 
+      { 
+        l2[[k]][[j]][[1]] <- l2[[k]][[j]][[1]]+l[[k]][[i]][[1]] 
+      } 
+    } 
+  } 
+  } 
+  return(l2)  
+} 
+    
+LC <- LW_2.3(liCaiDat2.1, 2, 5)    
+``` 
+
+# LW_2.4, adding in the fixed lik cal and integration
+```{r}  
+LW_2.4 <- function(x, nr, nQuad) {      
+  l <- list()    
+  # LW 2.0 step 1    
+  for(k in 1:length(x)) { # i.e. for each item cluster    
+     
+  l[[k]] <- list()     
+  l[[k]][[1]] <- list()  
+  l[[k]][[2]] <- list()  
+    
+  l[[k]][[1]][[1]] <- matrix(unlist(x[[k]][1]),  
+                        nrow = 5,  
+                        ncol = 5)  
+  l[[k]][[1]][[2]] <- 1 # correct for p  
+  l[[k]][[2]][[1]] <- 1-matrix(unlist(x[[k]][1]),  
+                        nrow = 5,  
+                        ncol = 5)  
+  l[[k]][[2]][[2]] <- 0 # correct for p  
+    
+  for(i in 2:length(x[[k]])) {   
+    l[[k]] <- c(l[[k]],l[[k]])  
+    ts_num <- length(l[[k]])  
+        for(j in 1:ts_num) {    
+          if(j <= ts_num/2) {   
+        l[[k]][[j]][[1]] <- l[[k]][[j]][[1]]*x[[1]][[1]]  
+        l[[k]][[j]][[2]] <- l[[k]][[j]][[2]]+1   
+          }  
+          else{  
+            l[[k]][[j]][[1]] <- l[[k]][[j]][[1]]*(1-x[[k]][[1]])  
+          }  
+        }  
+     
+  }  
+  } 
+   
+  l2 <- list() 
+  temp <- list() 
+   
+  # looping over l to get temp[[k]][[2]] to contain unique sum scores 
+  for(k in 1:length(l)) { 
+    temp[[k]] <- list() 
+    temp[[k]][[1]] <- numeric() # Vector for all Sum Scores across item clusters  
+    for(i in 1:length(l[[k]])) { 
+      temp[[k]][[1]][i] <- l[[k]][[i]][[2]]  
+    } 
+   temp[[k]][[2]] <- numeric() 
+   temp[[k]][[3]] <- numeric() 
+   temp[[k]][[2]] <- unique(temp[[k]][[1]]) 
+   temp[[k]][[2]] <- sort(unique(temp[[k]][[1]])) 
+   temp[[k]][[3]] <- data.frame(SS = temp[[k]][[2]], 
+                                index = seq(1, length(temp[[k]][[2]]))) 
+  
+  } 
+   
+  for(k in 1:length(temp[[k]])){ 
+    l2[[k]] <- list() 
+    for(i in 1:length(temp[[k]][[2]])) { # indexing on SS +1 bc r cannot index on 0 
+      l2[[k]][[i]] <- list() 
+      l2[[k]][[i]][[1]] <- matrix(rep(0, 
+                                 nQuad*nQuad), 
+                             nrow = nQuad, 
+                             ncol = nQuad) 
+      l2[[k]][[i]][[2]] <- numeric() 
+      l2[[k]][[i]][[2]] <- temp[[k]][[2]][i] 
+       
+  } 
+  } 
+   
+  # the loop below combines lik 
+    for(k in 1:length(l)) { 
+    for(i in 1:length(l[[k]])) { 
+      for(j in 1:nrow(temp[[k]][[3]])) { 
+      if(l[[k]][[i]][[2]] == temp[[k]][[3]][[j,"SS"]]) 
+      { 
+        l2[[k]][[j]][[1]] <- l2[[k]][[j]][[1]]+l[[k]][[i]][[1]] 
+      } 
+    } 
+  } 
+    } 
+  
+
+  return(l)  
+} 
+    
+LC <- LW_2.4(liCaiDat2.1, 2, 5)  
+LC[[1]]
+``` 
+## trying to fix the within cluster lik cal
+```{r}
+likCalFun <- function(x, nQuad) { 
+  
+  LW_lik <- list() # IC-LW step-item (1- lik, 2 - ss)
+  LW_final_step <- list()
+for(k in 1:length(x)) { # i.e. for each item cluster    
+     
+  LW_lik[[k]] <- list() # list at the level of item clusters     
+  LW_lik[[k]][[1]] <- list() # list for IC k lik cal iter 1
+  LW_lik[[k]][[1]][[1]] <- list() # list for IC k lik cal iter 1 score 1
+  LW_lik[[k]][[1]][[2]] <- list()# list for IC k lik cal iter 1 score 2
+  LW_lik[[k]][[1]][[1]][[1]] <- matrix(unlist(x[[k]][1]),  
+                        nrow = 5,  
+                        ncol = 5)
+  LW_lik[[k]][[1]][[1]][[2]] <- numeric()
+  LW_lik[[k]][[1]][[1]][[2]] <- 1 # correct for p  
+  LW_lik[[k]][[1]][[2]][[1]] <- 1-matrix(unlist(x[[k]][1]),  
+                        nrow = 5,  
+                        ncol = 5)  
+  LW_lik[[k]][[1]][[2]][[2]] <- numeric()
+  LW_lik[[k]][[1]][[2]][[2]] <- 0 # correct for p  
+    
+  for(i in 2:length(x[[k]])) {   
+    LW_lik[[k]][[i]] <- c(LW_lik[[k]][[i-1]],
+                     LW_lik[[k]][[i-1]])  
+    ts_num <- length(LW_lik[[k]][[i]])  
+        for(j in 1:ts_num) {    
+          if(j <= ts_num/2) {   
+        LW_lik[[k]][[i]][[j]][[1]] <- LW_lik[[k]][[i]][[j]][[1]]*x[[k]][[i]]  
+        LW_lik[[k]][[i]][[j]][[2]] <- LW_lik[[k]][[i]][[j]][[2]]+1   
+          }  
+          else{  
+            LW_lik[[k]][[i]][[j]][[1]] <- LW_lik[[k]][[i]][[j]][[1]]*(1-x[[k]][[i]])  
+          }  
+        }  
+  } 
+    max_likCal_iter <- length(LW_lik[[k]]) # keeping only the last iteration of the item cluster LW alg
+  LW_lik[[k]] <- LW_lik[[k]][[max_likCal_iter]] 
+} 
+  unique_SS_lik <- list() # list to contain lik for unique SS
+  temp <- list() # The purpose of temp is to create an index so that sum scores can be looped through, bc the SS = 0 index cannot be refrenced in loops.
+   
+  # looping over LW_lik to get temp[[k]][[2]] to contain unique sum scores 
+  for(k in 1:length(LW_lik)) { 
+    temp[[k]] <- list() 
+    temp[[k]][[1]] <- numeric() # Vector for all Sum Scores across item clusters  
+    for(i in 1:length(LW_lik[[k]])) { 
+      temp[[k]][[1]][i] <- LW_lik[[k]][[i]][[2]]  
+    } 
+   temp[[k]][[2]] <- numeric() 
+   temp[[k]][[3]] <- numeric() 
+   temp[[k]][[2]] <- unique(temp[[k]][[1]]) 
+   temp[[k]][[2]] <- sort(unique(temp[[k]][[1]])) 
+   temp[[k]][[3]] <- data.frame(SS = temp[[k]][[2]], 
+                                index = seq(1, length(temp[[k]][[2]]))) 
+  
+  }
+
+  # first simply create empty matrices(i.e. 0's) so that they can be used to sum lik later 
+    for(k in 1:length(temp[[k]])){ 
+    unique_SS_lik[[k]] <- list() 
+    for(i in 1:length(temp[[k]][[2]])) { # indexing on SS +1 bc r cannot index on 0 
+      unique_SS_lik[[k]][[i]] <- list() 
+      unique_SS_lik[[k]][[i]][[1]] <- matrix(rep(0, 
+                                 nQuad*nQuad), 
+                             nrow = nQuad, 
+                             ncol = nQuad) 
+      unique_SS_lik[[k]][[i]][[2]] <- numeric() 
+      unique_SS_lik[[k]][[i]][[2]] <- temp[[k]][[2]][i] 
+       
+  } 
+    } 
+  
+    # the loop below combines lik 
+    for(k in 1:length(LW_lik)) { 
+    for(i in 1:length(LW_lik[[k]])) { 
+      for(j in 1:nrow(temp[[k]][[3]])) { 
+      if(LW_lik[[k]][[i]][[2]] == temp[[k]][[3]][[j,"SS"]]) 
+      { 
+        unique_SS_lik[[k]][[j]][[1]] <- unique_SS_lik[[k]][[j]][[1]]+LW_lik[[k]][[i]][[1]] 
+      } 
+    } 
+  } 
+    }
+  return(unique_SS_lik)
+}
+
+foo <- likCalFun(liCaiDat2.1, 5)
+foo[[1]]
+foo[[1]][[2]]
+foo[[1]][[2]][[2]][[1]]+foo[[1]][[2]][[3]][[1]]
+```
