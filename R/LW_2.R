@@ -1,4 +1,16 @@
-lw_2 <- function(tlines, n_quad) {
+lw_2 <- function(n_quad, theta_min, theta_max,
+                 a_gen,
+                 a_spec,
+                 c,
+                 ic_index,
+                 nr) {
+
+  theta_gen <- quad_gen(n_quad, theta_min, theta_max)
+  theta_spec <- quad_gen(n_quad, theta_min, theta_max)
+  dist_2d <- norm_dist_2d(n_quad, theta_min, theta_max)
+  marg_2d <- marg_dist_2d(dist_2d)
+  tlines <- comp_ts(theta_gen, theta_spec, a_gen, a_spec,
+                    c, ic_index, nr)
 
   lw_lik <- list() # IC-lw step-item (1- lik, 2 - ss)
   lw_final_step <- list()
@@ -89,7 +101,7 @@ lw_2 <- function(tlines, n_quad) {
         for(QP2 in 1:n_quad) {
           unique_SS_lik[[k]][[i]][["mar_tLine"]][QP1] <- unique_SS_lik[[k]][[i]][["mar_tLine"]][QP1]+unique_SS_lik[[k]][[i]][[1]][QP1,QP2]*normal2d[QP1,QP2]
         }
-        unique_SS_lik[[k]][[i]][["mar_tLine"]][QP1] <-  unique_SS_lik[[k]][[i]][["mar_tLine"]][QP1]/marginalPopDist[QP1]
+        unique_SS_lik[[k]][[i]][["mar_tLine"]][QP1] <-  unique_SS_lik[[k]][[i]][["mar_tLine"]][QP1]/marg_2d[QP1]
       }
     }
   }
@@ -138,3 +150,13 @@ lw_2 <- function(tlines, n_quad) {
 
   return(aggregated_SS)
 }
+
+f <- lw_2(n_quad = 21,
+          theta_min = -2,
+          theta_max = 2,
+          a_gen = c(1.2,1.2,1,1,.8,.8),
+          a_spec = c(1,1,.8,.8,1.2,1.2),
+          c = c(-1,-.6,-.2,.2,.6,1),
+          ic_index = c(1,1,2,2,3,3),
+          nr = 2)
+comp
