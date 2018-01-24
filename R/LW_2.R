@@ -7,7 +7,7 @@ lw_2 <- function(n_quad, theta_min, theta_max,
 
   theta_gen <- quad_gen(n_quad, theta_min, theta_max)
   theta_spec <- quad_gen(n_quad, theta_min, theta_max)
-  dist_2d <- norm_dist_2d(n_quad, theta_min, theta_max)
+  dist_2d <- norm_dist_2d(theta_gen, theta_spec)
   marg_2d <- marg_dist_2d(dist_2d)
   tlines <- comp_ts(theta_gen, theta_spec, a_gen, a_spec,
                     c, ic_index, nr)
@@ -151,12 +151,31 @@ lw_2 <- function(n_quad, theta_min, theta_max,
   return(aggregated_SS)
 }
 
-f <- lw_2(n_quad = 21,
-          theta_min = -2,
-          theta_max = 2,
-          a_gen = c(1.2,1.2,1,1,.8,.8),
-          a_spec = c(1,1,.8,.8,1.2,1.2),
-          c = c(-1,-.6,-.2,.2,.6,1),
-          ic_index = c(1,1,2,2,3,3),
-          nr = 2)
-comp
+Lis_example <- lw_2(n_quad = 5,
+                    theta_min = -2,
+                    theta_max = 2,
+                    a_gen = c(1.2,1.2,1,1,.8,.8),
+                    a_spec = c(1,1,.8,.8,1.2,1.2),
+                    c = c(-1,-.6,-.2,.2,.6,1),
+                    ic_index = c(1,1,2,2,3,3),
+                    nr = 2)
+
+Lis_example-f2
+
+Lis_example <- lw_2(n_quad = 5,
+                    theta_min = -2,
+                    theta_max = 2,
+                    a_gen = c(1.2,1.2,1,1,.8,.8),
+                    a_spec = c(1,1,.8,.8,1.2,1.2),
+                    c = c(-1,-.6,-.2,.2,.6,1),
+                    ic_index = c(1,1,2,2,3,3),
+                    nr = 2)
+
+plot(c(-2,-1,0,1,2), Lis_example[1,2:6])
+lines(c(-2,-1,0,1,2), Lis_example[2,2:6])
+lines(c(-2,-1,0,1,2), Lis_example[3,2:6])
+lines(c(-2,-1,0,1,2), Lis_example[4,2:6])
+lines(c(-2,-1,0,1,2), Lis_example[5,2:6])
+lines(c(-2,-1,0,1,2), Lis_example[6,2:6])
+lines(c(-2,-1,0,1,2), Lis_example[7,2:6])
+
