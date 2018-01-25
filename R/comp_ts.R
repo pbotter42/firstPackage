@@ -28,10 +28,10 @@
 #'
 #' @examples
 #' example_ts <- comp_ts(theta_gen = c(-2,-1,0,1,2),
-#' theta_spec <- c(-2,-1,0,1,2),
-#' a_gen <- c(1.2,1.2,1,1,.8,.8),
-#' a_spec <- c(1,1,.8,.8,1.2,1.2),
-#' c <- c(-1,-.6,-.2,.2,.6,1),
+#' theta_spec = c(-2,-1,0,1,2),
+#' a_gen = c(1.2,1.2,1,1,.8,.8),
+#' a_spec = c(1,1,.8,.8,1.2,1.2),
+#' c = c(-1,-.6,-.2,.2,.6,1),
 #' ic_index = c(1,1,2,2,3,3),
 #' nr = 2)
 #'
@@ -71,3 +71,4 @@ comp_ts <- function(theta_gen,
   }
   return(ts_ic)
 }
+norm
