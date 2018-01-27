@@ -9,13 +9,13 @@
 #' theta values for the specific dimension
 #'
 #' @param a_gen
-#' location parameter for the general dimension
+#' descrimination parameter for the general dimension
 #'
 #' @param a_spec
-#' location parameter for the specific dimension(s)
+#' descrimination parameter for the specific dimension(s)
 #'
 #' @param c
-#' Guessing paramater
+#' item threshold paramater
 #'
 #' @param ic_index
 #' Numeric vector that delineates the correspondence between item and
@@ -71,4 +71,3 @@ comp_ts <- function(theta_gen,
   }
   return(ts_ic)
 }
-norm
