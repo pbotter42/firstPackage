@@ -8,10 +8,10 @@
 #'
 #' @return dist_m
 #'
-#' @examples normal_distribution(theta_gen = c(-2,-1,0,1,2),
+#' @examples norm_dist_2d(theta_gen = c(-2,-1,0,1,2),
 #'  theta_spec = c(-2,-1,0,1,2))
 #'
-#' @export normal_distribution
+#' @export norm_dist_2d
 
 norm_dist_2d <- function(theta_gen, theta_spec) {
   dist_m <- matrix(0,length(theta_gen),length(theta_gen))
