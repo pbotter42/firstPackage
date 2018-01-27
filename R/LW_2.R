@@ -21,13 +21,13 @@ lw_2 <- function(n_quad, theta_min, theta_max,
     lw_lik[[k]][[1]][[1]] <- list() # list for IC k lik cal iter 1 score 1
     lw_lik[[k]][[1]][[2]] <- list()# list for IC k lik cal iter 1 score 2
     lw_lik[[k]][[1]][[1]][[1]] <- matrix(unlist(tlines[[k]][1]),
-                                         nrow = 5,
-                                         ncol = 5)
+                                         nrow = n_quad,
+                                         ncol = n_quad)
     lw_lik[[k]][[1]][[1]][[2]] <- numeric()
     lw_lik[[k]][[1]][[1]][[2]] <- 1 # correct for p
     lw_lik[[k]][[1]][[2]][[1]] <- 1-matrix(unlist(tlines[[k]][1]),
-                                           nrow = 5,
-                                           ncol = 5)
+                                           nrow = n_quad,
+                                           ncol = n_quad)
     lw_lik[[k]][[1]][[2]][[2]] <- numeric()
     lw_lik[[k]][[1]][[2]][[2]] <- 0 # correct for p
 
@@ -161,8 +161,7 @@ Lis_example <- lw_2(n_quad = 5,
                     nr = 2)
 
 Lis_example-f2
-
-Lis_example <- lw_2(n_quad = 5,
+Lis_example2 <- lw_2(n_quad = 5,
                     theta_min = -2,
                     theta_max = 2,
                     a_gen = c(1.2,1.2,1,1,.8,.8),
