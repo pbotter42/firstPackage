@@ -99,7 +99,7 @@ lw_2 <- function(n_quad, theta_min, theta_max,
       unique_SS_lik[[k]][[i]][["mar_tLine"]] <- rep(0,n_quad) # creating a numeric vector that will be the marginal trace line
       for(QP1 in 1:n_quad) {
         for(QP2 in 1:n_quad) {
-          unique_SS_lik[[k]][[i]][["mar_tLine"]][QP1] <- unique_SS_lik[[k]][[i]][["mar_tLine"]][QP1]+unique_SS_lik[[k]][[i]][[1]][QP1,QP2]*normal2d[QP1,QP2]
+          unique_SS_lik[[k]][[i]][["mar_tLine"]][QP1] <- unique_SS_lik[[k]][[i]][["mar_tLine"]][QP1]+unique_SS_lik[[k]][[i]][[1]][QP1,QP2]*dist_2d[QP1,QP2]
         }
         unique_SS_lik[[k]][[i]][["mar_tLine"]][QP1] <-  unique_SS_lik[[k]][[i]][["mar_tLine"]][QP1]/marg_2d[QP1]
       }
