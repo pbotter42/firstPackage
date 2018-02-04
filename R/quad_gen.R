@@ -13,6 +13,8 @@
 #' @examples quad_gen(n_quad=21,theta_min=-5, theta_max=5)
 #'
 #' @export quad_gen
+
+
 quad_gen <- function(n_quad, theta_min, theta_max) {
   if(theta_max <= 0 |
      theta_min >= 0 |
