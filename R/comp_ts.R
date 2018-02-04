@@ -37,6 +37,7 @@
 #'
 #' @export comp_ts
 
+
 comp_ts <- function(theta_gen,
                     theta_spec,
                     a_gen,
