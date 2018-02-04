@@ -1,4 +1,4 @@
 export(normal_distribution)
 export(norm_dist_2d)
-export(quad_gen)
+#export(quad_gen)
 export(comp_ts)
